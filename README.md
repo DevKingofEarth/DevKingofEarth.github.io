@@ -1,5 +1,5 @@
 # 💫 About Me:
-🎓 Recent EEE Grad | 🤖 ML Researcher (C-DAC CINE Ex-Intern)<br><br>Just beginning my open-source journey with dev tools that make life easier.<br><br>🌟 Featured: Interactive Git Helper Shell Script → Smart Git automation<br>🔭 Exploring: Algorithms for NoC | Energy Sector | 🛡️ Secure Embedded Systems | 🚀 Space and Defence Tech<br>💬 Let's build something awesome together!
+🎓 Recent EEE Grad | 🤖 ML Researcher (C-DAC CINE Ex-Intern)<br><br>Just beginning my open-source journey with dev tools that make life easier.<br><br>🌟 Featured: Repo-Crafter → An interactive shell script for your git and project needs<br>🔭 Exploring: Algorithms for NoC | Energy Sector | 🛡️ Secure Embedded Systems | 🚀 Space and Defence Tech<br>💬 Let's build something awesome together!
 
 
 ## 🌐 Socials:
