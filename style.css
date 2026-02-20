@@ -285,6 +285,20 @@ body {
     box-shadow: 0 0 15px var(--neon-cyan);
 }
 
+/* CV Buttons - Radium Green Style */
+.btn-cv {
+    background: transparent;
+    color: var(--neon-lime);
+    border: 2px solid var(--neon-lime);
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+}
+
+.btn-cv:hover {
+    background: rgba(0, 255, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    transform: translateY(-3px);
+}
+
 .btn-small {
     padding: 8px 20px;
     font-size: 0.9rem;
