@@ -573,19 +573,23 @@ body {
 
 .social-links {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
-    gap: 20px;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 .social-link {
-    display: block;
-    padding: 20px 40px;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
     text-align: center;
     text-decoration: none;
-    border-radius: 15px;
-    font-weight: 600;
-    font-size: 1.2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    line-height: 1;
+    height: fit-content;
     transition: all 0.3s ease;
 }
 
@@ -613,6 +617,18 @@ body {
     box-shadow: 0 0 15px rgba(0, 119, 181, 0.3);
 }
 
+.social-link.orcid {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid #a6ce39;
+    box-shadow: 0 0 8px rgba(166, 206, 57, 0.15);
+}
+
+.social-link.orcid:hover {
+    background: #a6ce39;
+    box-shadow: 0 0 15px rgba(166, 206, 57, 0.4);
+}
+
 /* Social Link Icons */
 .social-link svg {
     width: 20px;
@@ -621,16 +637,19 @@ body {
 }
 
 .social-link.github,
-.social-link.linkedin {
-    padding: 8px 12px;
+.social-link.linkedin,
+.social-link.orcid {
+    padding: 5px 10px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     width: fit-content;
+    height: fit-content;
 }
 
 .social-link span {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    line-height: 1;
 }
 
 /* ===== CV Download Section ===== */
@@ -746,7 +765,8 @@ body {
     }
 
     .social-link.github,
-    .social-link.linkedin {
+    .social-link.linkedin,
+    .social-link.orcid {
         padding: 10px 12px;
     }
 }
@@ -782,21 +802,33 @@ body {
     }
 
     .social-link.github,
-    .social-link.linkedin {
-        padding: 10px 12px;
+    .social-link.linkedin,
+    .social-link.orcid {
+        padding: 8px 10px;
     }
 
     .social-links {
-        flex-direction: column;
+        flex-direction: row;
+    }
+}
+
+    .social-link.github,
+    .social-link.linkedin {
+        padding: 8px 10px;
     }
 
-    .hero-buttons {
+    .social-links {
+        flex-direction: row;
+    }
+}
+
+.hero-buttons {
         flex-direction: column;
         align-items: center;
     }
 
     .cv-buttons {
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
     }
 
