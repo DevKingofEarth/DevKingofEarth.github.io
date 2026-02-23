@@ -698,6 +698,18 @@ body {
     box-shadow: 0 0 15px rgba(166, 206, 57, 0.4);
 }
 
+.social-link.arratai {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--neon-orange);
+    box-shadow: 0 0 8px rgba(255, 136, 0, 0.15);
+}
+
+.social-link.arratai:hover {
+    background: var(--neon-orange);
+    box-shadow: 0 0 15px rgba(255, 136, 0, 0.4);
+}
+
 /* Social Link Icons */
 .social-link svg {
     width: 20px;
@@ -835,7 +847,8 @@ body {
 
     .social-link.github,
     .social-link.linkedin,
-    .social-link.orcid {
+    .social-link.orcid,
+    .social-link.arratai {
         padding: 10px 12px;
     }
 }
