@@ -1008,65 +1008,84 @@ body {
     }
 
     @media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2.5rem;
-    }
+        .hero h1 {
+            font-size: 2.5rem;
+        }
 
-    .subtitle {
-        font-size: 1.2rem;
-    }
+        .subtitle {
+            font-size: 1.2rem;
+        }
 
-    .section-title {
-        font-size: 2rem;
-    }
+        .section-title {
+            font-size: 2rem;
+        }
 
-    .skills-grid {
-        grid-template-columns: 1fr;
-    }
+        .skills-grid {
+            grid-template-columns: 1fr;
+        }
 
-    .projects-grid {
-        grid-template-columns: 1fr;
-    }
+        .projects-grid {
+            grid-template-columns: 1fr;
+        }
 
-    .about-stats {
-        grid-template-columns: 1fr;
-    }
+        .about-stats {
+            grid-template-columns: 1fr;
+        }
 
-    /* Social icons - hide username when squeezed (tablet/mobile), square-ish */
-    .social-link span {
+        /* Social icons - hide username when squeezed (tablet/mobile), square-ish */
+        .social-link span {
+            display: none;
+        }
+
+        .social-link.github,
+        .social-link.linkedin,
+        .social-link.orcid,
+        .social-link.gmail {
+            padding: 8px 10px;
+        }
+
+        .social-links {
+            flex-direction: row;
+        }
+        
+        /* Hide Arratai text on mobile */
+        .arratai-split-btn .arratai-default,
+        .arratai-split-btn .arratai-hover {
+            display: none;
+        }
+        
+        .arratai-icon-segment {
+            border-radius: 6px;
+            width: 40px;
+            height: 40px;
+        }
+        
+        /* Hide hover text on mobile */
+        .social-link .hover-text {
+            display: none;
+        }
+        
+        /* Hide Arratai hover text on mobile */
+        .arratai-split-btn .arratai-hover {
+            display: none !important;
+        }
+        
+        /* On hover, ensure all corners are rounded */
+        .arratai-split-btn:hover .arratai-icon-segment {
+            border-radius: 6px;
+        }
+    }
+    
+    /* Tablet specific: hide Arratai text */
+    .arratai-split-btn .arratai-default,
+    .arratai-split-btn .arratai-hover {
         display: none;
     }
 
-    .social-link.github,
-    .social-link.linkedin,
-    .social-link.orcid,
-    .social-link.gmail {
-        padding: 8px 10px;
-    }
-
-    .social-links {
-        flex-direction: row;
-    }
-}
-
-    .social-link.github,
-    .social-link.linkedin,
-    .social-link.orcid,
-    .social-link.gmail {
-        padding: 8px 10px;
-    }
-
-    .social-links {
-        flex-direction: row;
-    }
-}
-
-@media (max-width: 768px) {
     .hero-buttons {
         flex-direction: column;
         align-items: center;
     }
-}
 
     .cv-buttons {
         flex-direction: row;
