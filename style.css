@@ -595,9 +595,9 @@ body {
 }
 
 .contact-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 
 .contact-info {
@@ -644,13 +644,15 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .social-link {
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     padding: 4px 10px;
     text-align: center;
     text-decoration: none;
@@ -660,6 +662,7 @@ body {
     line-height: 1;
     height: fit-content;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .social-link.github {
@@ -672,6 +675,21 @@ body {
 .social-link.github:hover {
     background: transparent;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.social-link.gmail {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid #EA4335;
+    box-shadow: 0 0 8px rgba(234, 67, 53, 0.15);
+    padding: 4px 10px;
+    gap: 6px;
+}
+
+.social-link.gmail:hover {
+    background: #EA4335;
+    box-shadow: 0 0 15px rgba(234, 67, 53, 0.4);
+    color: #fff;
 }
 
 .social-link.linkedin {
@@ -701,12 +719,13 @@ body {
 /* ===== Arratai Split Button ===== */
 .arratai-split-btn {
     display: inline-flex;
-    align-items: stretch;
+    align-items: center;
     text-decoration: none;
     transition: transform 0.3s ease;
     height: fit-content;
     border-radius: 6px;
     overflow: visible;
+    position: relative;
 }
 
 /* Left Segment: Icon */
@@ -764,9 +783,23 @@ body {
     color: #000;
 }
 
+/* Arratai hover text show/hide - simple */
+.arratai-split-btn .arratai-hover {
+    display: none;
+}
+
+.arratai-split-btn:hover .arratai-default {
+    display: none;
+}
+
+.arratai-split-btn:hover .arratai-hover {
+    display: inline;
+}
+
 /* Mobile Mode */
 @media (max-width: 768px) {
-    .arratai-split-btn span {
+    .arratai-split-btn .arratai-default,
+    .arratai-split-btn .arratai-hover {
         display: none;
     }
     
@@ -774,6 +807,11 @@ body {
         border-radius: 6px;
         width: 40px;
         height: 40px;
+    }
+    
+    /* Hide hover text on mobile */
+    .social-link .hover-text {
+        display: none;
     }
     
     /* On hover, ensure all corners are rounded */
@@ -803,6 +841,47 @@ body {
 .social-link span {
     font-size: 0.85rem;
     line-height: 1;
+}
+
+/* Smooth hover transitions */
+.social-link .hover-text,
+.social-link .default-text,
+.arratai-split-btn .arratai-default,
+.arratai-split-btn .arratai-hover {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.social-link .hover-text,
+.arratai-split-btn .arratai-hover {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    white-space: nowrap;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.social-link:hover .hover-text,
+.social-link:hover .default-text,
+.arratai-split-btn:hover .arratai-hover,
+.arratai-split-btn:hover .arratai-default {
+    visibility: visible;
+    opacity: 1;
+    position: static;
+    transform: none;
+}
+
+.social-link:hover .default-text,
+.arratai-split-btn:hover .arratai-default {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    transform: translateX(-50%);
+    left: 50%;
 }
 
 /* ===== CV Download Section ===== */
@@ -955,7 +1034,8 @@ body {
 
     .social-link.github,
     .social-link.linkedin,
-    .social-link.orcid {
+    .social-link.orcid,
+    .social-link.gmail {
         padding: 8px 10px;
     }
 
@@ -966,7 +1046,8 @@ body {
 
     .social-link.github,
     .social-link.linkedin,
-    .social-link.orcid {
+    .social-link.orcid,
+    .social-link.gmail {
         padding: 8px 10px;
     }
 
