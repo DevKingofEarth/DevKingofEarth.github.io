@@ -716,6 +716,10 @@ body {
     box-shadow: 0 0 15px rgba(166, 206, 57, 0.4);
 }
 
+.social-link.orcid:hover span {
+    color: #000;
+}
+
 /* ===== Arratai Split Button ===== */
 .arratai-split-btn {
     display: inline-flex;
@@ -1056,10 +1060,12 @@ body {
     }
 }
 
-.hero-buttons {
+@media (max-width: 768px) {
+    .hero-buttons {
         flex-direction: column;
         align-items: center;
     }
+}
 
     .cv-buttons {
         flex-direction: row;
