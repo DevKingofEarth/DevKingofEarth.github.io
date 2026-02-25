@@ -725,7 +725,7 @@ body {
     display: inline-flex;
     align-items: center;
     text-decoration: none;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease-in-out;
     height: fit-content;
     border-radius: 6px;
     overflow: visible;
@@ -743,8 +743,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 10px rgba(237, 201, 52, 0.2);
-    transition: all 0.3s ease;
+    box-shadow: 0 0 8px rgba(237, 201, 52, 0.15);
+    transition: all 0.3s ease-in-out;
 }
 
 .arratai-icon-segment img {
@@ -766,24 +766,20 @@ body {
     font-weight: 500;
     font-size: 0.85rem;
     height: 34px;
-    box-shadow: 0 0 10px rgba(237, 201, 52, 0.2);
-    transition: all 0.3s ease;
+    box-shadow: 0 0 8px rgba(237, 201, 52, 0.15);
+    transition: all 0.3s ease-in-out;
 }
 
-/* Hover Effects */
-.arratai-split-btn:hover {
-    transform: translateY(-3px);
-}
-
+/* Hover Effects - Professional (no jump, soft glow) */
 .arratai-split-btn:hover .arratai-icon-segment {
     border-radius: 6px 0 0 6px;
-    box-shadow: 0 0 20px #EDC934;
+    box-shadow: 0 0 15px rgba(237, 201, 52, 0.3);
 }
 
 .arratai-split-btn:hover span {
     background: #EDC934;
     border-radius: 0 6px 6px 0;
-    box-shadow: 0 0 20px #EDC934;
+    box-shadow: 0 0 15px rgba(237, 201, 52, 0.3);
     color: #000;
 }
 
@@ -816,6 +812,11 @@ body {
     /* Hide hover text on mobile */
     .social-link .hover-text {
         display: none;
+    }
+    
+    /* Hide Arratai hover text on mobile */
+    .arratai-split-btn .arratai-hover {
+        display: none !important;
     }
     
     /* On hover, ensure all corners are rounded */
