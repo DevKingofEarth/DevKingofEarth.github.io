@@ -1,0 +1,6 @@
+# robots.txt - Allow all search engines
+User-agent: *
+Allow: /
+
+# Sitemap (optional for single-page portfolio)
+Sitemap: https://devkingofearth.github.io/
