@@ -276,6 +276,17 @@
             pointer-events: none;
         }
 
+        /* Download Source button - secondary style */
+        .viewer-download-source {
+            border-color: var(--neon-lime);
+            color: var(--neon-lime);
+        }
+
+        .viewer-download-source:hover {
+            background: rgba(0, 255, 0, 0.15);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
         /* Toast notification */
         .viewer-toast {
             position: fixed;
@@ -320,10 +331,18 @@
             gap: 15px;
         }
 
-        .viewer-header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        /* Mobile responsiveness for viewer buttons */
+        @media (max-width: 600px) {
+            .viewer-header-right {
+                gap: 8px;
+            }
+            .viewer-download {
+                font-size: 0.7rem;
+                padding: 5px 8px;
+            }
+            .viewer-download-source {
+                display: none; /* Hide source button on very small screens */
+            }
         }
 
         .viewer-content {
@@ -741,6 +760,7 @@
             <span class="viewer-title" id="viewerTitle">GATE EE - Last Minute Formulas</span>
             <div class="viewer-header-right">
                 <button class="viewer-download" onclick="downloadPDF()">Download PDF</button>
+                <button class="viewer-download viewer-download-source" onclick="downloadSourceMD()">Download Source</button>
                 <button class="viewer-close" onclick="closeViewer()">&times;</button>
             </div>
         </div>
@@ -813,7 +833,10 @@
         }
 
         // Viewer functions
+        let currentResourceType = null; // Track current resource for download source
+        
         async function openViewer(type) {
+            currentResourceType = type; // Store current type
             const viewer = document.getElementById('contentViewer');
             const content = document.getElementById('viewerContent');
             const outline = document.getElementById('viewerOutline');
@@ -982,69 +1005,74 @@
             // Add PDF-specific styles inline
             const pdfStyles = `
                 <style>
-                    body { 
+                    .pdf-content { 
                         font-family: 'Segoe UI', Arial, sans-serif; 
                         line-height: 1.6; 
                         color: #333;
                         padding: 20px;
+                        max-width: 180mm;
+                        margin: 0 auto;
+                        box-sizing: border-box;
+                        background: #fff;
                     }
-                    h1, h2, h3 { 
+                    .pdf-content h1, .pdf-content h2, .pdf-content h3 { 
                         color: #1a1a1a; 
                         margin-top: 20px;
                         page-break-after: avoid;
                     }
-                    h1 { font-size: 1.8rem; }
-                    h2 { font-size: 1.4rem; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-                    h3 { font-size: 1.2rem; }
-                    p, li, td { color: #333; }
-                    code { 
+                    .pdf-content h1 { font-size: 1.8rem; }
+                    .pdf-content h2 { font-size: 1.4rem; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+                    .pdf-content h3 { font-size: 1.2rem; }
+                    .pdf-content p, .pdf-content li, .pdf-content td { color: #333; }
+                    .pdf-content code { 
                         background: #f5f5f5; 
                         padding: 2px 6px; 
                         border-radius: 3px; 
                         font-family: 'Consolas', monospace;
                     }
-                    pre { 
+                    .pdf-content pre { 
                         background: #f5f5f5; 
                         padding: 15px; 
                         border-radius: 5px; 
                         overflow-x: auto;
                         page-break-inside: avoid;
                     }
-                    pre code { background: none; padding: 0; }
-                    table { 
+                    .pdf-content pre code { background: none; padding: 0; }
+                    .pdf-content table { 
                         width: 100%; 
                         border-collapse: collapse; 
                         margin: 15px 0;
                         page-break-inside: avoid;
                     }
-                    th, td { 
+                    .pdf-content th, .pdf-content td { 
                         border: 1px solid #ddd; 
                         padding: 10px; 
                         text-align: left;
                     }
-                    th { background: #f5f5f5; }
-                    blockquote { 
+                    .pdf-content th { background: #f5f5f5; }
+                    .pdf-content blockquote { 
                         border-left: 4px solid #666; 
                         margin: 15px 0; 
                         padding-left: 15px; 
                         color: #666;
                     }
-                    ul, ol { margin: 10px 0 10px 25px; }
-                    li { margin-bottom: 5px; }
-                    strong { color: #000; }
-                    hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
-                    a { color: #0066cc; text-decoration: none; }
-                    img { max-width: 100%; height: auto; }
+                    .pdf-content ul, .pdf-content ol { margin: 10px 0 10px 25px; }
+                    .pdf-content li { margin-bottom: 5px; }
+                    .pdf-content strong { color: #000; }
+                    .pdf-content hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
+                    .pdf-content a { color: #0066cc; text-decoration: none; }
+                    .pdf-content img { max-width: 100%; height: auto; }
                 </style>
             `;
             
             // Create wrapper element for PDF generation
             const wrapper = document.createElement('div');
+            wrapper.className = 'pdf-content';
             wrapper.innerHTML = pdfStyles + contentClone.innerHTML;
             
             // PDF generation options
             const options = {
-                margin: [10, 10, 10, 10],
+                margin: [15, 15, 15, 15],
                 filename: title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
@@ -1060,29 +1088,178 @@
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
             
-            // Use html2pdf.js if available, otherwise fallback to print
+            // Use html2pdf.js if available, otherwise fallback to print view
+            let pdfTimeout;
+            
             if (typeof html2pdf !== 'undefined') {
+                // Set timeout - if PDF takes more than 10 seconds, fallback to print view
+                pdfTimeout = setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    openPrintView();
+                }, 10000);
+                
                 html2pdf()
                     .set(options)
                     .from(wrapper)
                     .save()
                     .then(() => {
+                        clearTimeout(pdfTimeout);
                         // Reset button
                         btn.textContent = originalText;
                         btn.disabled = false;
                     })
                     .catch(err => {
+                        clearTimeout(pdfTimeout);
                         console.error('PDF generation error:', err);
-                        // Fallback to print on error
+                        // Fallback to print view on error
                         btn.textContent = originalText;
                         btn.disabled = false;
-                        window.print();
+                        openPrintView();
                     });
             } else {
                 // Fallback for when library fails to load
                 btn.textContent = originalText;
                 btn.disabled = false;
-                window.print();
+                openPrintView();
+            }
+        }
+
+        // Open print-friendly view in new tab (works on mobile)
+        function openPrintView() {
+            const content = document.getElementById('viewerContent').innerHTML;
+            const title = document.getElementById('viewerTitle').textContent;
+            
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                alert('Please allow popups to download the PDF');
+                return;
+            }
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${title} - Print View</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <style>
+                        * { box-sizing: border-box; }
+                        body { 
+                            font-family: 'Segoe UI', Arial, sans-serif; 
+                            line-height: 1.6; 
+                            color: #333;
+                            padding: 20px;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            background: #fff;
+                        }
+                        h1, h2, h3 { 
+                            color: #1a1a1a; 
+                            margin-top: 20px;
+                            page-break-after: avoid;
+                        }
+                        h1 { font-size: 1.8rem; }
+                        h2 { font-size: 1.4rem; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+                        h3 { font-size: 1.2rem; }
+                        p, li, td { color: #333; }
+                        code { 
+                            background: #f5f5f5; 
+                            padding: 2px 6px; 
+                            border-radius: 3px; 
+                            font-family: 'Consolas', monospace;
+                        }
+                        pre { 
+                            background: #f5f5f5; 
+                            padding: 15px; 
+                            border-radius: 5px; 
+                            overflow-x: auto;
+                            page-break-inside: avoid;
+                        }
+                        pre code { background: none; padding: 0; }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin: 15px 0;
+                            page-break-inside: avoid;
+                        }
+                        th, td { 
+                            border: 1px solid #ddd; 
+                            padding: 10px; 
+                            text-align: left;
+                        }
+                        th { background: #f5f5f5; }
+                        blockquote { 
+                            border-left: 4px solid #666; 
+                            margin: 15px 0; 
+                            padding-left: 15px; 
+                            color: #666;
+                        }
+                        ul, ol { margin: 10px 0 10px 25px; }
+                        li { margin-bottom: 5px; }
+                        strong { color: #000; }
+                        hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
+                        a { color: #0066cc; text-decoration: none; }
+                        img { max-width: 100%; height: auto; }
+                        @media print {
+                            body { padding: 0; }
+                            @page { margin: 15mm; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>${title}</h1>
+                    ${content}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            
+            // Give the content time to load, then open print dialog
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        }
+
+        // Download source markdown file directly
+        async function downloadSourceMD() {
+            if (!currentResourceType || !resources[currentResourceType]) {
+                alert('No resource selected');
+                return;
+            }
+            
+            const resource = resources[currentResourceType];
+            const url = useLocal ? resource.localUrl : resource.rawUrl;
+            const filename = resource.localUrl.split('/').pop() || 'notes.md';
+            const btn = document.querySelector('.viewer-download-source');
+            
+            // Show loading state
+            const originalText = btn.textContent;
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+            
+            try {
+                // Fetch content to avoid CORS issues with direct download
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch');
+                const markdown = await response.text();
+                
+                // Create blob and download
+                const blob = new Blob([markdown], { type: 'text/markdown' });
+                const blobUrl = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Failed to download. Try using the PDF option instead.');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
             }
         }
 
