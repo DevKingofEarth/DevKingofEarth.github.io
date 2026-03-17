@@ -27,6 +27,9 @@
     <!-- Marked.js for Markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
+    <!-- html2pdf.js for PDF download on mobile -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HddKFII7HsVtB5rPOOWoIA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     <style>
         /* Downloads Page Specific Styles - Neutral Cyan/Green Scheme */
         .downloads-hero {
@@ -265,6 +268,12 @@
         .viewer-download:hover {
             background: rgba(0, 243, 255, 0.15);
             box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        .viewer-download:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
         /* Toast notification */
@@ -731,7 +740,7 @@
         <div class="viewer-header">
             <span class="viewer-title" id="viewerTitle">GATE EE - Last Minute Formulas</span>
             <div class="viewer-header-right">
-                <button class="viewer-download" onclick="window.print()">Download PDF</button>
+                <button class="viewer-download" onclick="downloadPDF()">Download PDF</button>
                 <button class="viewer-close" onclick="closeViewer()">&times;</button>
             </div>
         </div>
@@ -949,12 +958,132 @@
         }
 
         function showToast() {
-            console.log('Toast called');
             const toast = document.getElementById('viewerToast');
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 2500);
+        }
+
+        // Download PDF function - works on both mobile and desktop
+        function downloadPDF() {
+            const content = document.getElementById('viewerContent');
+            const title = document.getElementById('viewerTitle').textContent;
+            const btn = document.querySelector('.viewer-download');
+            
+            // Show loading state
+            const originalText = btn.textContent;
+            btn.textContent = 'Generating...';
+            btn.disabled = true;
+            
+            // Clone content to avoid modifying original
+            const contentClone = content.cloneNode(true);
+            
+            // Add PDF-specific styles inline
+            const pdfStyles = `
+                <style>
+                    body { 
+                        font-family: 'Segoe UI', Arial, sans-serif; 
+                        line-height: 1.6; 
+                        color: #333;
+                        padding: 20px;
+                    }
+                    h1, h2, h3 { 
+                        color: #1a1a1a; 
+                        margin-top: 20px;
+                        page-break-after: avoid;
+                    }
+                    h1 { font-size: 1.8rem; }
+                    h2 { font-size: 1.4rem; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+                    h3 { font-size: 1.2rem; }
+                    p, li, td { color: #333; }
+                    code { 
+                        background: #f5f5f5; 
+                        padding: 2px 6px; 
+                        border-radius: 3px; 
+                        font-family: 'Consolas', monospace;
+                    }
+                    pre { 
+                        background: #f5f5f5; 
+                        padding: 15px; 
+                        border-radius: 5px; 
+                        overflow-x: auto;
+                        page-break-inside: avoid;
+                    }
+                    pre code { background: none; padding: 0; }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin: 15px 0;
+                        page-break-inside: avoid;
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 10px; 
+                        text-align: left;
+                    }
+                    th { background: #f5f5f5; }
+                    blockquote { 
+                        border-left: 4px solid #666; 
+                        margin: 15px 0; 
+                        padding-left: 15px; 
+                        color: #666;
+                    }
+                    ul, ol { margin: 10px 0 10px 25px; }
+                    li { margin-bottom: 5px; }
+                    strong { color: #000; }
+                    hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
+                    a { color: #0066cc; text-decoration: none; }
+                    img { max-width: 100%; height: auto; }
+                </style>
+            `;
+            
+            // Create wrapper element for PDF generation
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = pdfStyles + contentClone.innerHTML;
+            
+            // PDF generation options
+            const options = {
+                margin: [10, 10, 10, 10],
+                filename: title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait'
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+            
+            // Use html2pdf.js if available, otherwise fallback to print
+            if (typeof html2pdf !== 'undefined') {
+                html2pdf()
+                    .set(options)
+                    .from(wrapper)
+                    .save()
+                    .then(() => {
+                        // Reset button
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    })
+                    .catch(err => {
+                        console.error('PDF generation error:', err);
+                        // Fallback to print on error
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                        window.print();
+                    });
+            } else {
+                // Fallback for when library fails to load
+                btn.textContent = originalText;
+                btn.disabled = false;
+                window.print();
+            }
         }
 
         function closeViewer() {
