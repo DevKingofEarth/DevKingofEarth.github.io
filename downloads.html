@@ -27,8 +27,8 @@
     <!-- Marked.js for Markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
-    <!-- html2pdf.js for PDF download on mobile -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HddKFII7HsVtB5rPOOWoIA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- html2pdf.js for PDF download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
     
     <style>
         /* Downloads Page Specific Styles - Neutral Cyan/Green Scheme */
@@ -999,86 +999,33 @@
             btn.textContent = 'Generating...';
             btn.disabled = true;
             
-            // Clone content to avoid modifying original
-            const contentClone = content.cloneNode(true);
+            // Get the content HTML and clean it up
+            const contentHtml = content.innerHTML;
             
-            // Add PDF-specific styles inline
-            const pdfStyles = `
-                <style>
-                    .pdf-content { 
-                        font-family: 'Segoe UI', Arial, sans-serif; 
-                        line-height: 1.6; 
-                        color: #333;
-                        padding: 20px;
-                        max-width: 180mm;
-                        margin: 0 auto;
-                        box-sizing: border-box;
-                        background: #fff;
-                    }
-                    .pdf-content h1, .pdf-content h2, .pdf-content h3 { 
-                        color: #1a1a1a; 
-                        margin-top: 20px;
-                        page-break-after: avoid;
-                    }
-                    .pdf-content h1 { font-size: 1.8rem; }
-                    .pdf-content h2 { font-size: 1.4rem; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-                    .pdf-content h3 { font-size: 1.2rem; }
-                    .pdf-content p, .pdf-content li, .pdf-content td { color: #333; }
-                    .pdf-content code { 
-                        background: #f5f5f5; 
-                        padding: 2px 6px; 
-                        border-radius: 3px; 
-                        font-family: 'Consolas', monospace;
-                    }
-                    .pdf-content pre { 
-                        background: #f5f5f5; 
-                        padding: 15px; 
-                        border-radius: 5px; 
-                        overflow-x: auto;
-                        page-break-inside: avoid;
-                    }
-                    .pdf-content pre code { background: none; padding: 0; }
-                    .pdf-content table { 
-                        width: 100%; 
-                        border-collapse: collapse; 
-                        margin: 15px 0;
-                        page-break-inside: avoid;
-                    }
-                    .pdf-content th, .pdf-content td { 
-                        border: 1px solid #ddd; 
-                        padding: 10px; 
-                        text-align: left;
-                    }
-                    .pdf-content th { background: #f5f5f5; }
-                    .pdf-content blockquote { 
-                        border-left: 4px solid #666; 
-                        margin: 15px 0; 
-                        padding-left: 15px; 
-                        color: #666;
-                    }
-                    .pdf-content ul, .pdf-content ol { margin: 10px 0 10px 25px; }
-                    .pdf-content li { margin-bottom: 5px; }
-                    .pdf-content strong { color: #000; }
-                    .pdf-content hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
-                    .pdf-content a { color: #0066cc; text-decoration: none; }
-                    .pdf-content img { max-width: 100%; height: auto; }
-                </style>
+            // Create a temporary container with proper styling
+            const container = document.createElement('div');
+            container.style.cssText = `
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                padding: 20px;
+                width: 180mm;
+                background: #fff;
+                font-size: 12pt;
             `;
+            container.innerHTML = contentHtml;
             
-            // Create wrapper element for PDF generation
-            const wrapper = document.createElement('div');
-            wrapper.className = 'pdf-content';
-            wrapper.innerHTML = pdfStyles + contentClone.innerHTML;
-            
-            // PDF generation options
-            const options = {
-                margin: [15, 15, 15, 15],
+            // PDF generation options - using html2canvas with higher quality
+            const opt = {
+                margin: [15, 15, 15, 15], // 15mm margins
                 filename: title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'png', quality: 0.98 },
                 html2canvas: { 
-                    scale: 2,
+                    scale: 3,
                     useCORS: true,
-                    letterRendering: true
+                    letterRendering: true,
+                    logging: false,
+                    width: 794 // A4 width in pixels at 96 DPI
                 },
                 jsPDF: { 
                     unit: 'mm', 
@@ -1088,136 +1035,28 @@
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
             
-            // Use html2pdf.js if available, otherwise fallback to print view
-            let pdfTimeout;
-            
+            // Check if html2pdf is available
             if (typeof html2pdf !== 'undefined') {
-                // Set timeout - if PDF takes more than 10 seconds, fallback to print view
-                pdfTimeout = setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    openPrintView();
-                }, 10000);
-                
                 html2pdf()
-                    .set(options)
-                    .from(wrapper)
+                    .set(opt)
+                    .from(container)
                     .save()
                     .then(() => {
-                        clearTimeout(pdfTimeout);
-                        // Reset button
                         btn.textContent = originalText;
                         btn.disabled = false;
                     })
                     .catch(err => {
-                        clearTimeout(pdfTimeout);
-                        console.error('PDF generation error:', err);
-                        // Fallback to print view on error
+                        console.error('PDF error:', err);
                         btn.textContent = originalText;
                         btn.disabled = false;
-                        openPrintView();
+                        alert('PDF generation failed. Try using "Download Source" to get the markdown file.');
                     });
             } else {
-                // Fallback for when library fails to load
+                // html2pdf not loaded - try jsPDF directly with simple text
                 btn.textContent = originalText;
                 btn.disabled = false;
-                openPrintView();
+                alert('PDF library not loaded. Please check your internet connection and try again, or use "Download Source" to get the markdown file.');
             }
-        }
-
-        // Open print-friendly view in new tab (works on mobile)
-        function openPrintView() {
-            const content = document.getElementById('viewerContent').innerHTML;
-            const title = document.getElementById('viewerTitle').textContent;
-            
-            const printWindow = window.open('', '_blank');
-            if (!printWindow) {
-                alert('Please allow popups to download the PDF');
-                return;
-            }
-            
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>${title} - Print View</title>
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <style>
-                        * { box-sizing: border-box; }
-                        body { 
-                            font-family: 'Segoe UI', Arial, sans-serif; 
-                            line-height: 1.6; 
-                            color: #333;
-                            padding: 20px;
-                            max-width: 800px;
-                            margin: 0 auto;
-                            background: #fff;
-                        }
-                        h1, h2, h3 { 
-                            color: #1a1a1a; 
-                            margin-top: 20px;
-                            page-break-after: avoid;
-                        }
-                        h1 { font-size: 1.8rem; }
-                        h2 { font-size: 1.4rem; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-                        h3 { font-size: 1.2rem; }
-                        p, li, td { color: #333; }
-                        code { 
-                            background: #f5f5f5; 
-                            padding: 2px 6px; 
-                            border-radius: 3px; 
-                            font-family: 'Consolas', monospace;
-                        }
-                        pre { 
-                            background: #f5f5f5; 
-                            padding: 15px; 
-                            border-radius: 5px; 
-                            overflow-x: auto;
-                            page-break-inside: avoid;
-                        }
-                        pre code { background: none; padding: 0; }
-                        table { 
-                            width: 100%; 
-                            border-collapse: collapse; 
-                            margin: 15px 0;
-                            page-break-inside: avoid;
-                        }
-                        th, td { 
-                            border: 1px solid #ddd; 
-                            padding: 10px; 
-                            text-align: left;
-                        }
-                        th { background: #f5f5f5; }
-                        blockquote { 
-                            border-left: 4px solid #666; 
-                            margin: 15px 0; 
-                            padding-left: 15px; 
-                            color: #666;
-                        }
-                        ul, ol { margin: 10px 0 10px 25px; }
-                        li { margin-bottom: 5px; }
-                        strong { color: #000; }
-                        hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
-                        a { color: #0066cc; text-decoration: none; }
-                        img { max-width: 100%; height: auto; }
-                        @media print {
-                            body { padding: 0; }
-                            @page { margin: 15mm; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h1>${title}</h1>
-                    ${content}
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            
-            // Give the content time to load, then open print dialog
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
         }
 
         // Download source markdown file directly
