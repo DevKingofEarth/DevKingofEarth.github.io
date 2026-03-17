@@ -27,10 +27,6 @@
     <!-- Marked.js for Markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
-    <!-- jsPDF and html2canvas for PDF download -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <style>
         /* Downloads Page Specific Styles - Neutral Cyan/Green Scheme */
         .downloads-hero {
@@ -594,6 +590,11 @@
 
         /* ===== Print Styles for PDF Download ===== */
         @media print {
+            /* Set page margins */
+            @page {
+                margin: 15mm;
+            }
+
             /* Hide UI elements */
             .navbar, .viewer-header, .viewer-outline, .downloads-hero, .footer, 
             .download-card, .downloads-grid, .container:not(.viewer-content) {
@@ -760,7 +761,7 @@
         <div class="viewer-header">
             <span class="viewer-title" id="viewerTitle">GATE EE - Last Minute Formulas</span>
             <div class="viewer-header-right">
-                <button class="viewer-download" onclick="downloadPDF()">Download PDF</button>
+                <button class="viewer-download" onclick="downloadPDF()">Print / Save PDF</button>
                 <button class="viewer-download viewer-download-source" onclick="downloadSourceMD()">Download Source</button>
                 <button class="viewer-close" onclick="closeViewer()">&times;</button>
             </div>
@@ -989,87 +990,10 @@
             }, 2500);
         }
 
-        // Download PDF function - using jsPDF + html2canvas
-        async function downloadPDF() {
-            const content = document.getElementById('viewerContent');
-            const title = document.getElementById('viewerTitle').textContent;
-            const btn = document.querySelector('.viewer-download');
-            
-            // Show loading state
-            const originalText = btn.textContent;
-            btn.textContent = 'Generating...';
-            btn.disabled = true;
-            
-            try {
-                // Wait for jsPDF and html2canvas to be available
-                const { jsPDF } = window.jspdf;
-                
-                // Create a temporary container with proper styling for PDF
-                const container = document.createElement('div');
-                container.style.cssText = `
-                    font-family: 'Segoe UI', Arial, sans-serif;
-                    line-height: 1.6;
-                    color: #000;
-                    padding: 15mm;
-                    width: 170mm;
-                    background: #fff;
-                    font-size: 11pt;
-                `;
-                
-                // Clone and clean the content
-                container.innerHTML = content.innerHTML;
-                
-                // Add temporary to body (hidden)
-                container.style.position = 'absolute';
-                container.style.left = '-9999px';
-                container.style.top = '0';
-                document.body.appendChild(container);
-                
-                // Generate canvas from the content
-                const canvas = await html2canvas(container, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff'
-                });
-                
-                // Remove temporary container
-                document.body.removeChild(container);
-                
-                // Create PDF
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 170; // A4 width minus margins
-                const pageHeight = 297;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                
-                let heightLeft = imgHeight;
-                let position = 15; // Top margin
-                
-                // Add first page
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 15, position, imgWidth, imgHeight);
-                heightLeft -= (pageHeight - 30);
-                
-                // Add more pages if needed
-                while (heightLeft > 0) {
-                    position = heightLeft - imgHeight + 15;
-                    pdf.addPage();
-                    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 15, position, imgWidth, imgHeight);
-                    heightLeft -= (pageHeight - 30);
-                }
-                
-                // Download the PDF
-                const filename = title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf';
-                pdf.save(filename);
-                
-                btn.textContent = originalText;
-                btn.disabled = false;
-                
-            } catch (err) {
-                console.error('PDF error:', err);
-                btn.textContent = originalText;
-                btn.disabled = false;
-                alert('PDF generation failed. Try using "Download Source" to get the markdown file.');
-            }
+        // Download PDF function - using browser print
+        function downloadPDF() {
+            // Open print dialog - user can save as PDF from there
+            window.print();
         }
 
         // Download source markdown file directly
